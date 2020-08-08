@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "moduleResolution": "node",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@figma"
+    ],    
+    "types": ["node"]
+  },
+  "compileOnSave": true,
+  "exclude": [
+    "node_modules",
+    "./path/to/typings/**/*.d.ts",
+    "./typings"
+  ]
+
+}

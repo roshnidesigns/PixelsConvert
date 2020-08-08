@@ -1,0 +1,318 @@
+<head>
+    <style>
+        .bttn-default {
+            color: #fff;
+        }
+        
+        .bttn-primary,
+        .bttn,
+        .bttn-sm {
+            color: #1d89ff;
+        }
+        
+        .bttn,
+        .bttn-simple {
+            margin: 0;
+            padding: 0;
+            border-width: 0;
+            border-color: transparent;
+            background: transparent;
+            font-weight: 400;
+            cursor: pointer;
+            position: relative;
+            font-size: 20px;
+            font-family: inherit;
+            padding: 5px 12px;
+            overflow: hidden;
+            border-width: 0;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            color: #fff;
+            -webkit-transition: all 0.3s cubic-bezier(0.02, 0.01, 0.47, 1);
+            transition: all 0.3s cubic-bezier(0.02, 0.01, 0.47, 1);
+        }
+        
+        .bttn-simple:hover,
+        .bttn-simple:focus {
+            opacity: 0.75;
+            outline: none;
+        }
+        
+        .bttn-simple.bttn-sm {
+            padding: 4px 20px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .bttn-simple.bttn-primary {
+            background: #1d89ff;
+        }
+        
+        #param {
+            color: #a5a5a5;
+            text-align: right;
+        }
+        
+        body,
+        select {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+        
+        p {
+            font-size: 14px;
+            color: #a5a5a5;
+        }
+        
+        div,
+        label {
+            margin: auto;
+            align-items: center;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        span {
+            color: #6f42c1;
+            text-align: center;
+        }
+        
+        table {
+            table-layout: fixed;
+            width: 100%;
+            margin: auto;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        th,
+        td {
+            font-size: 14px;
+            padding: 5px 10px;
+            word-wrap: break-word;
+            text-align: right;
+            border-bottom: 1px solid #f5f5f5;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <label for="dpi"> <strong> Select screen density</label><br></strong>
+        <select name="dpi" id="dpi">
+      <option value="ldpi">ldpi ~120dpi (low) </option>
+      <option value="mdpi" selected>mdpi ~160dpi (medium): baseline</option>
+      <option value="hdpi">hdpi ~240dpi (high) </option>
+      <option value="xhdpi">xhdpi ~320dpi (extra-high) </option>
+      <option value="xxhdpi">xxhdpi ~480dpi (extra-extra-high) </option>
+      <option value="xxxhdpi">xxxhdpi ~640dpi (extra-extra-extra-high) </option>
+        </select>
+        <button id="convert" class="bttn-simple bttn-sm bttn-primary">Get!</button>
+    </div>
+    <br>
+    <p id="msgd">Select atleast 1 layer to get value</p>
+    <table style="text-align:center">
+        <tr>
+            <th>Parameter</th>
+            <th id="px">px</th>
+            <th id="dp">dp</th>
+            <th id="sp">mm</th>
+            <th id="pt">pt</th>
+            <th id="inch">inch</th>
+        </tr>
+
+        <tr>
+            <td id="param">x:</td>
+            <td><span id="x-px"> undefined</span></td>
+            <td><span id="x-dp"> undefined</span></td>
+            <td><span id="x-sp"> undefined</span></td>
+            <td><span id="x-pt"> undefined</span></td>
+            <td><span id="x-inch"> undefined</span></td>
+        </tr>
+        <tr>
+            <td id="param">y:</td>
+            <td><span id="y-px"> undefined</span></td>
+            <td><span id="y-dp"> undefined</span></td>
+            <td><span id="y-sp"> undefined</span></td>
+            <td><span id="y-pt"> undefined</span></td>
+            <td><span id="y-inch"> undefined</span></td>
+        </tr>
+        <tr>
+            <td id="param">height:</td>
+            <td><span id="height-px"> undefined</span></td>
+            <td><span id="height-dp"> undefined</span></td>
+            <td><span id="height-sp"> undefined</span></td>
+            <td><span id="height-pt"> undefined</span></td>
+            <td><span id="height-inch"> undefined</span></td>
+        </tr>
+        <tr>
+            <td id="param">width:</td>
+            <td><span id="width-px"> undefined</span></td>
+            <td><span id="width-dp"> undefined</span></td>
+            <td><span id="width-sp"> undefined</span></td>
+            <td><span id="width-pt"> undefined</span></td>
+            <td><span id="width-inch"> undefined</span></td>
+        </tr>
+        <tr>
+            <td id="param">font-size:</td>
+            <td><span id="font-size-px"> undefined</span></td>
+            <td><span id="font-size-dp"> undefined</span></td>
+            <td><span id="font-size-sp"> undefined</span></td>
+            <td><span id="font-size-pt"> undefined</span></td>
+            <td><span id="font-size-inch"> undefined</span></td>
+        </tr>
+        <tr>
+            <td id="param">paragraph-spacing:</td>
+            <td><span id="para-spacing-px"> undefined</span></td>
+            <td><span id="para-spacing-dp"> undefined</span></td>
+            <td><span id="para-spacing-sp"> undefined</span></td>
+            <td><span id="para-spacing-pt"> undefined</span></td>
+            <td><span id="para-spacing-inch"> undefined</span></td>
+        </tr>
+    </table>
+
+
+    <script>
+        document.getElementById('convert').onclick = () => {
+            const select = document.getElementById('dpi').value;
+
+            if (select === 'ldpi') {
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'ldpi',
+                        val: 120
+                    }
+                }, '*')
+            } else if (select === 'mdpi') {
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'mdpi',
+                        val: 160
+                    }
+                }, '*')
+            } else if (select === 'hdpi') {
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'hdpi',
+                        val: 240
+                    }
+                }, '*')
+            } else if (select === 'xhdpi') {
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'xhdpi',
+                        val: 320
+                    }
+                }, '*')
+            } else if (select === 'xxhdpi') {
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'xxhdpi',
+                        val: 480
+                    }
+                }, '*')
+            } else if (select === 'xxxhdpi') {
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'xxxhdpi',
+                        val: 640
+                    }
+                }, '*')
+            }
+        }
+
+        window.onmessage = async event => {
+            const message = event.data.pluginMessage
+            if (message.type === 'sendmsg') {
+                document.getElementById("msgd").style.color = "#e61a1a";
+            }
+            if (message.type === 'resp') {
+                document.getElementById("msgd").style.color = "#a5a5a5";
+            }
+            if (message.type === 'sendpx') {
+                document.getElementById("x-px").textContent = message.x
+                document.getElementById("y-px").textContent = message.y
+                document.getElementById("height-px").textContent = message.height
+                document.getElementById("width-px").textContent = message.width
+                document.getElementById("font-size-px").textContent = "undefined"
+                document.getElementById("para-spacing-px").textContent = "undefined"
+            }
+            if (message.type === 'senddp') {
+                document.getElementById("x-dp").textContent = message.x
+                document.getElementById("y-dp").textContent = message.y
+                document.getElementById("height-dp").textContent = message.height
+                document.getElementById("width-dp").textContent = message.width
+                document.getElementById("font-size-dp").textContent = "undefined"
+                document.getElementById("para-spacing-dp").textContent = "undefined"
+            }
+            if (message.type === 'sendpt') {
+                document.getElementById("x-pt").textContent = message.x
+                document.getElementById("y-pt").textContent = message.y
+                document.getElementById("height-pt").textContent = message.height
+                document.getElementById("width-pt").textContent = message.width
+                document.getElementById("font-size-pt").textContent = "undefined"
+                document.getElementById("para-spacing-pt").textContent = "undefined"
+            }
+            if (message.type === 'sendinch') {
+                document.getElementById("x-inch").textContent = message.x
+                document.getElementById("y-inch").textContent = message.y
+                document.getElementById("height-inch").textContent = message.height
+                document.getElementById("width-inch").textContent = message.width
+                document.getElementById("font-size-inch").textContent = "undefined"
+                document.getElementById("para-spacing-inch").textContent = "undefined"
+            }
+            if (message.type === 'sendmm') {
+                document.getElementById("x-sp").textContent = message.x
+                document.getElementById("y-sp").textContent = message.y
+                document.getElementById("height-sp").textContent = message.height
+                document.getElementById("width-sp").textContent = message.width
+                document.getElementById("font-size-sp").textContent = "undefined"
+                document.getElementById("para-spacing-sp").textContent = "undefined"
+            }
+
+            if (message.type === 'sendTextpx') {
+                document.getElementById("x-px").textContent = message.x
+                document.getElementById("y-px").textContent = message.y
+                document.getElementById("height-px").textContent = message.height
+                document.getElementById("width-px").textContent = message.width
+                document.getElementById("font-size-px").textContent = message.fontSize
+                document.getElementById("para-spacing-px").textContent = message.paragraphSpacing
+            }
+            if (message.type === 'sendTextdp') {
+                document.getElementById("x-dp").textContent = message.x
+                document.getElementById("y-dp").textContent = message.y
+                document.getElementById("height-dp").textContent = message.height
+                document.getElementById("width-dp").textContent = message.width
+                document.getElementById("font-size-dp").textContent = message.fontSize
+                document.getElementById("para-spacing-dp").textContent = message.paragraphSpacing
+            }
+            if (message.type === 'sendTextpt') {
+                document.getElementById("x-pt").textContent = message.x
+                document.getElementById("y-pt").textContent = message.y
+                document.getElementById("height-pt").textContent = message.height
+                document.getElementById("width-pt").textContent = message.width
+                document.getElementById("font-size-pt").textContent = message.fontSize
+                document.getElementById("para-spacing-pt").textContent = message.paragraphSpacing
+            }
+            if (message.type === 'sendTextmm') {
+                document.getElementById("x-sp").textContent = message.x
+                document.getElementById("y-sp").textContent = message.y
+                document.getElementById("height-sp").textContent = message.height
+                document.getElementById("width-sp").textContent = message.width
+                document.getElementById("font-size-sp").textContent = message.fontSize
+                document.getElementById("para-spacing-sp").textContent = message.paragraphSpacing
+            }
+            if (message.type === 'sendTextinch') {
+                document.getElementById("x-inch").textContent = message.x
+                document.getElementById("y-inch").textContent = message.y
+                document.getElementById("height-inch").textContent = message.height
+                document.getElementById("width-inch").textContent = message.width
+                document.getElementById("font-size-inch").textContent = message.fontSize
+                document.getElementById("para-spacing-inch").textContent = message.paragraphSpacing
+            }
+
+        }
+    </script>
+</body>
