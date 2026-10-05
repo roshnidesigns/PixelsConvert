@@ -5,8 +5,8 @@
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@figma"
-    ],    
-    "types": ["node"]
+    ],
+    "types": ["plugin-typings"]
   },
   "compileOnSave": true,
   "exclude": [
