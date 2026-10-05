@@ -1,5 +1,5 @@
-figma.showUI(__html__)
-figma.ui.resize(640, 440)
+const WIDTH = 560
+figma.showUI(__html__, { width: WIDTH, height: 320, themeColors: true })
 
 const BASELINE_DPI = 160
 const MM_PER_INCH = 25.4
@@ -17,6 +17,8 @@ figma.ui.onmessage = msg => {
     figma.notify(msg.text)
   } else if (msg.type === 'open') {
     figma.openExternal(msg.url)
+  } else if (msg.type === 'resize') {
+    figma.ui.resize(WIDTH, Math.max(160, Math.min(600, msg.height)))
   }
 }
 
@@ -81,7 +83,7 @@ function getBounds (selection) {
 function update () {
   const selection = figma.currentPage.selection
   if (selection.length === 0) {
-    figma.ui.postMessage({ type: 'empty', str: 'Select at least 1 layer' })
+    figma.ui.postMessage({ type: 'empty', str: 'Select a layer to see its values' })
     return
   }
 
