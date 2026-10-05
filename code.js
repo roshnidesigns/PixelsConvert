@@ -1,8 +1,10 @@
 figma.showUI(__html__)
-figma.ui.resize(600, 400)
+figma.ui.resize(640, 440)
 
 const BASELINE_DPI = 160
 const MM_PER_INCH = 25.4
+// Android's default font scale; sp equals dp at this scale
+const FONT_SCALE = 1
 
 // density chosen in the UI; kept so selection changes don't reset it
 let currentDpi = BASELINE_DPI
@@ -11,6 +13,10 @@ figma.ui.onmessage = msg => {
   if (msg.type === 'setdpi') {
     currentDpi = msg.val
     update()
+  } else if (msg.type === 'notify') {
+    figma.notify(msg.text)
+  } else if (msg.type === 'open') {
+    figma.openExternal(msg.url)
   }
 }
 
@@ -19,6 +25,9 @@ figma.on('selectionchange', update)
 // functions to get units
 function getdp (px, dpi) {
   return px * (BASELINE_DPI / dpi)
+}
+function getsp (px, dpi) {
+  return getdp(px, dpi) / FONT_SCALE
 }
 function getpt (px, dpi) {
   return px * (72 / dpi)
@@ -36,6 +45,7 @@ function convert (px, dpi) {
   return {
     px,
     dp: getdp(px, dpi),
+    sp: getsp(px, dpi),
     mm: getmm(px, dpi),
     pt: getpt(px, dpi),
     inch: getinch(px, dpi)

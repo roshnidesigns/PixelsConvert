@@ -1,69 +1,60 @@
 <head>
     <style>
-        .bttn-default {
-            color: #fff;
-        }
-        
-        .bttn-primary,
-        .bttn,
-        .bttn-sm {
-            color: #1d89ff;
-        }
-        
-        .bttn,
         .bttn-simple {
             margin: 0;
-            padding: 0;
             border-width: 0;
             border-color: transparent;
-            background: transparent;
             font-weight: 400;
             cursor: pointer;
             position: relative;
-            font-size: 20px;
             font-family: inherit;
-            padding: 5px 12px;
             overflow: hidden;
-            border-width: 0;
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.4);
             color: #fff;
             -webkit-transition: all 0.3s cubic-bezier(0.02, 0.01, 0.47, 1);
             transition: all 0.3s cubic-bezier(0.02, 0.01, 0.47, 1);
         }
-        
+
         .bttn-simple:hover,
         .bttn-simple:focus {
             opacity: 0.75;
             outline: none;
         }
-        
+
         .bttn-simple.bttn-sm {
             padding: 4px 20px;
             font-size: 16px;
-            font-family: inherit;
         }
-        
+
         .bttn-simple.bttn-primary {
             background: #1d89ff;
         }
-        
+
+        .bttn-simple.bttn-ghost {
+            padding: 3px 12px;
+            font-size: 13px;
+            background: transparent;
+            color: #1d89ff;
+            border: 1px solid #1d89ff;
+        }
+
         .param {
             color: #a5a5a5;
             text-align: right;
         }
-        
+
         body,
-        select {
+        select,
+        input {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 16px;
         }
-        
+
         p {
             font-size: 14px;
             color: #a5a5a5;
         }
-        
+
         div,
         label {
             margin: auto;
@@ -71,22 +62,22 @@
             text-align: center;
             font-size: 16px;
         }
-        
+
         span {
             color: #6f42c1;
             text-align: center;
         }
-        
+
         table {
             table-layout: fixed;
             width: 100%;
             margin: auto;
         }
-        
+
         tr:hover {
             background-color: #f5f5f5;
         }
-        
+
         th,
         td {
             font-size: 14px;
@@ -95,6 +86,52 @@
             text-align: right;
             border-bottom: 1px solid #f5f5f5;
         }
+
+        td.value {
+            cursor: copy;
+        }
+
+        td.value:hover span {
+            text-decoration: underline;
+        }
+
+        #custom-dpi {
+            width: 70px;
+            padding: 2px 4px;
+        }
+
+        #custom-dpi[hidden] {
+            display: none;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .status p {
+            margin: 0;
+        }
+
+        footer {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+
+        footer a {
+            color: #1d89ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -102,129 +139,177 @@
     <div>
         <label for="dpi"><strong>Select screen density</strong></label><br>
         <select name="dpi" id="dpi">
-      <option value="ldpi">ldpi ~120dpi (low) </option>
-      <option value="mdpi" selected>mdpi ~160dpi (medium): baseline</option>
-      <option value="hdpi">hdpi ~240dpi (high) </option>
-      <option value="xhdpi">xhdpi ~320dpi (extra-high) </option>
-      <option value="xxhdpi">xxhdpi ~480dpi (extra-extra-high) </option>
-      <option value="xxxhdpi">xxxhdpi ~640dpi (extra-extra-extra-high) </option>
+            <option value="120">ldpi ~120dpi (low)</option>
+            <option value="160" selected>mdpi ~160dpi (medium): baseline</option>
+            <option value="240">hdpi ~240dpi (high)</option>
+            <option value="320">xhdpi ~320dpi (extra-high)</option>
+            <option value="480">xxhdpi ~480dpi (extra-extra-high)</option>
+            <option value="640">xxxhdpi ~640dpi (extra-extra-extra-high)</option>
+            <option value="custom">Custom…</option>
         </select>
+        <input type="number" id="custom-dpi" min="1" max="2000" step="1" placeholder="dpi" hidden>
         <button id="convert" class="bttn-simple bttn-sm bttn-primary">Get!</button>
     </div>
-    <br>
-    <p id="msgd">Select at least 1 layer to get value</p>
-    <table style="text-align:center">
-        <tr>
-            <th>Parameter</th>
-            <th id="px">px</th>
-            <th id="dp">dp</th>
-            <th id="sp">mm</th>
-            <th id="pt">pt</th>
-            <th id="inch">inch</th>
-        </tr>
 
-        <tr>
-            <td class="param">x:</td>
-            <td><span id="x-px">–</span></td>
-            <td><span id="x-dp">–</span></td>
-            <td><span id="x-sp">–</span></td>
-            <td><span id="x-pt">–</span></td>
-            <td><span id="x-inch">–</span></td>
-        </tr>
-        <tr>
-            <td class="param">y:</td>
-            <td><span id="y-px">–</span></td>
-            <td><span id="y-dp">–</span></td>
-            <td><span id="y-sp">–</span></td>
-            <td><span id="y-pt">–</span></td>
-            <td><span id="y-inch">–</span></td>
-        </tr>
-        <tr>
-            <td class="param">height:</td>
-            <td><span id="height-px">–</span></td>
-            <td><span id="height-dp">–</span></td>
-            <td><span id="height-sp">–</span></td>
-            <td><span id="height-pt">–</span></td>
-            <td><span id="height-inch">–</span></td>
-        </tr>
-        <tr>
-            <td class="param">width:</td>
-            <td><span id="width-px">–</span></td>
-            <td><span id="width-dp">–</span></td>
-            <td><span id="width-sp">–</span></td>
-            <td><span id="width-pt">–</span></td>
-            <td><span id="width-inch">–</span></td>
-        </tr>
-        <tr>
-            <td class="param">font-size:</td>
-            <td><span id="font-size-px">–</span></td>
-            <td><span id="font-size-dp">–</span></td>
-            <td><span id="font-size-sp">–</span></td>
-            <td><span id="font-size-pt">–</span></td>
-            <td><span id="font-size-inch">–</span></td>
-        </tr>
-        <tr>
-            <td class="param">paragraph-spacing:</td>
-            <td><span id="para-spacing-px">–</span></td>
-            <td><span id="para-spacing-dp">–</span></td>
-            <td><span id="para-spacing-sp">–</span></td>
-            <td><span id="para-spacing-pt">–</span></td>
-            <td><span id="para-spacing-inch">–</span></td>
-        </tr>
+    <div class="status">
+        <p id="msgd">Select at least 1 layer to get value</p>
+        <button id="copy-all" class="bttn-simple bttn-ghost">Copy all</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr id="head">
+                <th>Parameter</th>
+            </tr>
+        </thead>
+        <tbody id="rows"></tbody>
     </table>
 
+    <footer>
+        <a id="pro-link">Pro / Plus</a>
+        <a id="love-link">♥ Show some love</a>
+    </footer>
 
     <script>
-        const DPI = {
-            ldpi: 120,
-            mdpi: 160,
-            hdpi: 240,
-            xhdpi: 320,
-            xxhdpi: 480,
-            xxxhdpi: 640
+        // TODO: replace with the real links
+        const PRO_URL = 'https://example.com/pixelsconvert-pro'
+        const LOVE_URL = 'https://example.com/support-pixelsconvert'
+
+        const ROWS = [
+            { key: 'x', label: 'x' },
+            { key: 'y', label: 'y' },
+            { key: 'height', label: 'height' },
+            { key: 'width', label: 'width' },
+            { key: 'fontSize', label: 'font-size' },
+            { key: 'paragraphSpacing', label: 'paragraph-spacing' }
+        ]
+        const UNITS = ['px', 'dp', 'sp', 'pt', 'mm', 'inch']
+
+        let current = null
+
+        // build the table from ROWS × UNITS
+        const head = document.getElementById('head')
+        for (const unit of UNITS) {
+            const th = document.createElement('th')
+            th.textContent = unit
+            head.appendChild(th)
         }
-        // element id prefix for each row, and id suffix for each unit column
-        const ROWS = {
-            x: 'x',
-            y: 'y',
-            height: 'height',
-            width: 'width',
-            fontSize: 'font-size',
-            paragraphSpacing: 'para-spacing'
+        const tbody = document.getElementById('rows')
+        for (const row of ROWS) {
+            const tr = document.createElement('tr')
+            const label = document.createElement('td')
+            label.className = 'param'
+            label.textContent = row.label + ':'
+            tr.appendChild(label)
+            for (const unit of UNITS) {
+                const td = document.createElement('td')
+                td.className = 'value'
+                td.title = 'Click to copy'
+                const span = document.createElement('span')
+                span.id = row.key + '-' + unit
+                span.textContent = '–'
+                td.appendChild(span)
+                td.onclick = () => copyCell(row.key, unit)
+                tr.appendChild(td)
+            }
+            tbody.appendChild(tr)
         }
-        const UNITS = { px: 'px', dp: 'dp', mm: 'sp', pt: 'pt', inch: 'inch' }
+
+        const post = pluginMessage => parent.postMessage({ pluginMessage }, '*')
+        const notify = text => post({ type: 'notify', text })
+
+        // density
+        const select = document.getElementById('dpi')
+        const customDpi = document.getElementById('custom-dpi')
 
         const sendDpi = () => {
-            const select = document.getElementById('dpi').value
-            parent.postMessage({ pluginMessage: { type: 'setdpi', val: DPI[select] } }, '*')
+            const raw = select.value === 'custom' ? customDpi.value : select.value
+            const dpi = Number(raw)
+            if (!(dpi > 0 && dpi <= 2000)) {
+                if (select.value === 'custom') notify('Enter a dpi between 1 and 2000')
+                return
+            }
+            post({ type: 'setdpi', val: dpi })
+        }
+        select.onchange = () => {
+            customDpi.hidden = select.value !== 'custom'
+            if (select.value === 'custom') customDpi.focus()
+            else sendDpi()
+        }
+        customDpi.oninput = () => {
+            if (Number(customDpi.value) > 0) sendDpi()
         }
         document.getElementById('convert').onclick = sendDpi
-        document.getElementById('dpi').onchange = sendDpi
 
+        // values
         const format = n => String(Math.round(n * 100) / 100)
 
-        const setRow = (row, value) => {
-            for (const unit in UNITS) {
-                const cell = document.getElementById(ROWS[row] + '-' + UNITS[unit])
-                if (value === null) cell.textContent = '–'
-                else if (value === 'mixed') cell.textContent = 'mixed'
-                else cell.textContent = format(value[unit])
+        const cellText = (row, unit) => {
+            const value = current && current[row]
+            if (value === null || value === undefined) return null
+            if (value === 'mixed') return 'mixed'
+            return format(value[unit])
+        }
+
+        const render = () => {
+            for (const row of ROWS) {
+                for (const unit of UNITS) {
+                    const text = cellText(row.key, unit)
+                    document.getElementById(row.key + '-' + unit).textContent = text === null ? '–' : text
+                }
             }
         }
+
+        // copying: navigator.clipboard is blocked in plugin iframes, so use execCommand
+        const copyText = text => {
+            const area = document.createElement('textarea')
+            area.value = text
+            document.body.appendChild(area)
+            area.select()
+            document.execCommand('copy')
+            area.remove()
+        }
+
+        const copyCell = (row, unit) => {
+            const text = cellText(row, unit)
+            if (text === null || text === 'mixed') return
+            copyText(text + unit)
+            notify('Copied ' + text + unit)
+        }
+
+        document.getElementById('copy-all').onclick = () => {
+            if (!current) {
+                notify('Select at least 1 layer')
+                return
+            }
+            const lines = [['parameter'].concat(UNITS).join('\t')]
+            for (const row of ROWS) {
+                if (current[row.key] === null) continue
+                const cells = UNITS.map(unit => cellText(row.key, unit))
+                lines.push([row.label].concat(cells).join('\t'))
+            }
+            copyText(lines.join('\n'))
+            notify('Copied all values')
+        }
+
+        // links
+        document.getElementById('pro-link').onclick = () => post({ type: 'open', url: PRO_URL })
+        document.getElementById('love-link').onclick = () => post({ type: 'open', url: LOVE_URL })
 
         window.onmessage = event => {
             const message = event.data.pluginMessage
             const msg = document.getElementById('msgd')
             if (message.type === 'empty') {
+                current = null
                 msg.textContent = message.str
                 msg.style.color = '#e61a1a'
-                for (const row in ROWS) setRow(row, null)
             }
             if (message.type === 'values') {
-                msg.textContent = message.str
+                current = message.values
+                msg.textContent = message.str + ' · ' + message.dpi + 'dpi'
                 msg.style.color = '#a5a5a5'
-                for (const row in ROWS) setRow(row, message.values[row])
             }
+            render()
         }
     </script>
 </body>
