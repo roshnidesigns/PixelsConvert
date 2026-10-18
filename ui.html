@@ -295,7 +295,8 @@
         }
 
         .empty-state[hidden],
-        #results[hidden] {
+        #results[hidden],
+        footer[hidden] {
             display: none;
         }
 
@@ -366,15 +367,15 @@
         <p class="hint">Click any value to copy it.</p>
     </div>
 
-    <footer>
+    <footer id="footer">
         <a id="love-link" class="love">♥ Show some love</a>
         <a id="pro-link">Get Pro / Plus →</a>
     </footer>
 
     <script>
-        // TODO: replace with the real links
-        const PRO_URL = 'https://example.com/pixelsconvert-pro'
-        const LOVE_URL = 'https://example.com/support-pixelsconvert'
+        // footer links; a link stays hidden while its URL is empty (the footer too, if both are)
+        const PRO_URL = ''
+        const LOVE_URL = ''
 
         const ROWS = [
             { key: 'x', label: 'X' },
@@ -549,8 +550,13 @@
         }
 
         // links
-        document.getElementById('pro-link').onclick = () => post({ type: 'open', url: PRO_URL })
-        document.getElementById('love-link').onclick = () => post({ type: 'open', url: LOVE_URL })
+        const proLink = document.getElementById('pro-link')
+        const loveLink = document.getElementById('love-link')
+        proLink.hidden = !PRO_URL
+        loveLink.hidden = !LOVE_URL
+        document.getElementById('footer').hidden = !PRO_URL && !LOVE_URL
+        proLink.onclick = () => post({ type: 'open', url: PRO_URL })
+        loveLink.onclick = () => post({ type: 'open', url: LOVE_URL })
 
         window.onmessage = event => {
             const message = event.data.pluginMessage
