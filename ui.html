@@ -327,10 +327,376 @@
         footer .love:hover {
             color: var(--text);
         }
+
+        /* ---------- What's new tour ---------- */
+        #whats-new {
+            display: flex;
+            flex-direction: column;
+            height: 392px;
+        }
+
+        #whats-new[hidden],
+        #app[hidden] {
+            display: none;
+        }
+
+        .wn-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 24px;
+        }
+
+        .wn-badge {
+            padding: 0 8px;
+            border-radius: 999px;
+            background: var(--bg-brand-tertiary);
+            color: var(--text-brand);
+            font-weight: 600;
+        }
+
+        .wn-skip {
+            border: 0;
+            background: none;
+            color: var(--text-secondary);
+        }
+
+        .wn-skip:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+
+        .wn-stage {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .wn-slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wn-slide.in-next { animation: wn-in-next 260ms cubic-bezier(.2, .7, .2, 1) both; }
+        .wn-slide.in-prev { animation: wn-in-prev 260ms cubic-bezier(.2, .7, .2, 1) both; }
+        .wn-slide.out-next { animation: wn-out-next 200ms ease-in both; }
+        .wn-slide.out-prev { animation: wn-out-prev 200ms ease-in both; }
+
+        @keyframes wn-in-next { from { opacity: 0; transform: translateX(32px); } }
+        @keyframes wn-in-prev { from { opacity: 0; transform: translateX(-32px); } }
+        @keyframes wn-out-next { to { opacity: 0; transform: translateX(-32px); } }
+        @keyframes wn-out-prev { to { opacity: 0; transform: translateX(32px); } }
+
+        .wn-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 196px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        .wn-step {
+            margin: 16px 0 4px;
+            color: var(--text-tertiary);
+        }
+
+        .wn-title {
+            margin: 0 0 6px;
+            font-size: 15px;
+            line-height: 20px;
+            font-weight: 600;
+        }
+
+        .wn-text {
+            margin: 0;
+            max-width: 420px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        .wn-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 32px;
+            margin-top: 12px;
+        }
+
+        .wn-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .wn-dots i {
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            transition: width 200ms, background 200ms;
+        }
+
+        .wn-dots i.on {
+            width: 18px;
+            background: var(--bg-brand);
+        }
+
+        .wn-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .wn-buttons button {
+            height: 32px;
+            padding: 0 14px;
+        }
+
+        .wn-buttons button[hidden] {
+            display: none;
+        }
+
+        button.primary {
+            border-color: transparent;
+            background: var(--bg-brand);
+            color: var(--text-onbrand);
+            font-weight: 600;
+        }
+
+        button.primary:hover {
+            background: var(--bg-brand);
+            opacity: .9;
+        }
+
+        /* leaving the tour / entering the app */
+        #whats-new.leaving {
+            animation: wn-leave 220ms ease-in both;
+        }
+
+        #app.entering {
+            animation: wn-enter 320ms cubic-bezier(.2, .7, .2, 1) both;
+        }
+
+        @keyframes wn-leave { to { opacity: 0; transform: scale(.98); } }
+        @keyframes wn-enter { from { opacity: 0; transform: translateY(8px); } }
+
+        @media (prefers-reduced-motion: reduce) {
+            .wn-slide, #whats-new.leaving, #app.entering { animation: none !important; }
+        }
+
+        /* mini illustrations */
+        .mini {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+        }
+
+        .mini-windows {
+            display: flex;
+            gap: 16px;
+        }
+
+        .mini-window {
+            width: 170px;
+            padding: 10px;
+        }
+
+        .mini-window.dark {
+            --bg: #2c2c2c;
+            --bg-secondary: #1e1e1e;
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, .7);
+            --text-tertiary: rgba(255, 255, 255, .4);
+            --border: #444444;
+            border-color: #444444;
+            background: #2c2c2c;
+        }
+
+        .mini-bar {
+            height: 6px;
+            margin-bottom: 6px;
+            border-radius: 3px;
+            background: var(--bg-secondary);
+        }
+
+        .mini-tabs {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border-radius: 5px;
+            background: var(--bg-secondary);
+            margin-bottom: 8px;
+        }
+
+        .mini-tabs span {
+            flex: 1;
+            padding: 3px 6px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-align: center;
+            line-height: 12px;
+        }
+
+        .mini-tabs span small {
+            display: block;
+            color: var(--text-tertiary);
+            font-weight: 400;
+        }
+
+        .mini-tabs span.on {
+            border-color: var(--border);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .mini-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .mini-row span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .mini-table {
+            width: 300px;
+            padding: 10px 12px;
+        }
+
+        .mini-table .mini-row span {
+            flex: 1;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .mini-table .mini-row span:first-child {
+            flex: 1.6;
+            text-align: left;
+        }
+
+        .mini-table .head span {
+            color: var(--text-secondary);
+        }
+
+        .hl {
+            border-radius: 3px;
+            background: var(--bg-brand-tertiary);
+            color: var(--text-brand) !important;
+            font-weight: 600;
+        }
+
+        .mini-custom {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+        }
+
+        .mini-input {
+            width: 64px;
+            padding: 2px 6px;
+            border: 1px solid var(--bg-brand);
+            border-radius: 4px;
+            box-shadow: 0 0 0 1px var(--bg-brand);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .mini-toast {
+            margin-top: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #2c2c2c;
+            color: #fff;
+            text-align: center;
+        }
+
+        .mini-canvas {
+            position: relative;
+            width: 260px;
+            height: 150px;
+        }
+
+        .mini-canvas .shape {
+            position: absolute;
+            border-radius: 4px;
+            background: #fcf300;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15);
+        }
+
+        .mini-canvas .sel {
+            position: absolute;
+            border: 1.5px solid #0d99ff;
+        }
+
+        .mini-canvas .badge {
+            position: absolute;
+            transform: translateX(-50%);
+            padding: 0 5px;
+            border-radius: 3px;
+            background: #0d99ff;
+            color: #fff;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .mini-equation {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .mini-equation span {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+        }
+
+        .mini-equation em {
+            color: var(--text-tertiary);
+            font-style: normal;
+        }
+
+        .mini-caption {
+            margin-top: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
+    <section id="whats-new" hidden aria-labelledby="wn-title">
+        <div class="wn-top">
+            <span class="wn-badge">What's new</span>
+            <button class="wn-skip" id="wn-skip">Skip</button>
+        </div>
+        <div class="wn-stage" id="wn-stage"></div>
+        <div class="wn-nav">
+            <div class="wn-dots" id="wn-dots"></div>
+            <div class="wn-buttons">
+                <button id="wn-back">Back</button>
+                <button id="wn-next" class="primary">Next</button>
+            </div>
+        </div>
+    </section>
+
+    <main id="app">
     <p class="section-label" id="density-label">Screen density</p>
     <div class="tabs" id="tabs" role="radiogroup" aria-labelledby="density-label"></div>
     <div class="custom-row" id="custom-row" hidden>
@@ -371,6 +737,7 @@
         <a id="love-link" class="love">♥ Show some love</a>
         <a id="pro-link">Get Pro / Plus →</a>
     </footer>
+    </main>
 
     <script>
         // footer links; a link stays hidden while its URL is empty (the footer too, if both are)
@@ -573,8 +940,136 @@
             render()
         }
 
+
+        // ---------- What's new tour (shown once per version; the plugin sets data-whats-new) ----------
+        const SLIDES = [
+            {
+                title: 'A fresh new look',
+                text: 'PixelsConvert now looks and feels like Figma, and follows your light or dark theme.',
+                visual: `<div class="mini-windows">
+                    <div class="mini mini-window"><div class="mini-tabs"><span>mdpi</span><span class="on">hdpi</span><span>xhdpi</span></div>
+                        <div class="mini-bar" style="width:80%"></div><div class="mini-bar"></div><div class="mini-bar" style="width:60%"></div></div>
+                    <div class="mini mini-window dark"><div class="mini-tabs"><span>mdpi</span><span class="on">hdpi</span><span>xhdpi</span></div>
+                        <div class="mini-bar" style="width:80%"></div><div class="mini-bar"></div><div class="mini-bar" style="width:60%"></div></div>
+                </div>`
+            },
+            {
+                title: 'Pick a density in one click',
+                text: 'Switch between ldpi and xxxhdpi with tabs, or enter any custom dpi. Values update as you go.',
+                visual: `<div class="mini" style="width:360px;padding:12px">
+                    <div class="mini-tabs"><span>ldpi<small>120</small></span><span>mdpi<small>160</small></span><span>hdpi<small>240</small></span><span class="on">xhdpi<small>320</small></span><span>Custom<small>…</small></span></div>
+                    <div class="mini-custom">Custom dpi <span class="mini-input">401</span></div>
+                </div>`
+            },
+            {
+                title: 'Now with sp',
+                text: 'Get font sizes in scale-independent pixels, right next to dp.',
+                visual: `<div class="mini mini-table">
+                    <div class="mini-row head"><span>Property</span><span>px</span><span>dp</span><span class="hl">sp</span><span>pt</span></div>
+                    <div class="mini-row"><span>Font size</span><span>72</span><span>24</span><span class="hl">24</span><span>10.8</span></div>
+                    <div class="mini-row"><span>Paragraph spacing</span><span>24</span><span>8</span><span class="hl">8</span><span>3.6</span></div>
+                </div>`
+            },
+            {
+                title: 'Click to copy',
+                text: 'Click any value to copy it with its unit, or use Copy all to grab the whole table for a spreadsheet.',
+                visual: `<div style="display:flex;flex-direction:column;align-items:center">
+                    <div class="mini mini-table">
+                        <div class="mini-row head"><span>Property</span><span>px</span><span>dp</span><span>sp</span></div>
+                        <div class="mini-row"><span>Width</span><span>984</span><span>328</span><span>328</span></div>
+                        <div class="mini-row"><span>Font size</span><span>72</span><span>24</span><span class="hl">24</span></div>
+                    </div>
+                    <div class="mini-toast">Copied 24sp</div>
+                </div>`
+            },
+            {
+                title: 'Measure several layers',
+                text: 'Select more than one layer to get the size and position of the whole group.',
+                visual: `<div class="mini-canvas">
+                    <div class="shape" style="left:40px;top:20px;width:80px;height:50px"></div>
+                    <div class="shape" style="left:140px;top:60px;width:80px;height:50px"></div>
+                    <div class="sel" style="left:40px;top:20px;width:180px;height:90px"></div>
+                    <div class="badge" style="left:130px;top:118px">2 layers · 180 × 90</div>
+                </div>`
+            },
+            {
+                title: 'More accurate',
+                text: 'mm and inch now follow the selected density, and text with mixed font sizes is marked “mixed”.',
+                visual: `<div style="display:flex;flex-direction:column;align-items:center">
+                    <div class="mini-equation"><span>1 inch</span><em>=</em><span>25.4 mm</span><em>=</em><span>72 pt</span><em>=</em><span>160 dp</span></div>
+                    <div class="mini-caption">at every screen density</div>
+                </div>`
+            }
+        ]
+
+        const whatsNew = document.getElementById('whats-new')
+        const app = document.getElementById('app')
+        const wnStage = document.getElementById('wn-stage')
+        const wnDots = document.getElementById('wn-dots')
+        const wnBack = document.getElementById('wn-back')
+        const wnNext = document.getElementById('wn-next')
+        let slideIndex = 0
+        let slideEl = null
+
+        const buildSlide = i => {
+            const el = document.createElement('div')
+            el.className = 'wn-slide'
+            el.innerHTML = '<div class="wn-visual" aria-hidden="true">' + SLIDES[i].visual + '</div>' +
+                '<p class="wn-step">' + (i + 1) + ' of ' + SLIDES.length + '</p>' +
+                '<h2 class="wn-title"' + (i === slideIndex ? ' id="wn-title"' : '') + '>' + SLIDES[i].title + '</h2>' +
+                '<p class="wn-text">' + SLIDES[i].text + '</p>'
+            return el
+        }
+
+        const showSlide = (i, dir) => {
+            const old = slideEl
+            slideIndex = i
+            slideEl = buildSlide(i)
+            if (old) {
+                old.classList.add(dir > 0 ? 'out-next' : 'out-prev')
+                slideEl.classList.add(dir > 0 ? 'in-next' : 'in-prev')
+                old.addEventListener('animationend', () => old.remove(), { once: true })
+                // fallback in case animations are disabled
+                setTimeout(() => old.remove(), 300)
+            }
+            wnStage.appendChild(slideEl)
+            wnDots.querySelectorAll('i').forEach((dot, k) => dot.classList.toggle('on', k === i))
+            wnBack.hidden = i === 0
+            wnNext.textContent = i === SLIDES.length - 1 ? 'Start converting' : 'Next'
+        }
+
+        const finishWhatsNew = () => {
+            post({ type: 'whats-new-done' })
+            whatsNew.classList.add('leaving')
+            setTimeout(() => {
+                whatsNew.hidden = true
+                app.hidden = false
+                app.classList.add('entering')
+                fit()
+            }, 220)
+        }
+
+        const startWhatsNew = () => {
+            app.hidden = true
+            whatsNew.hidden = false
+            for (let i = 0; i < SLIDES.length; i++) wnDots.appendChild(document.createElement('i'))
+            showSlide(0, 0)
+            wnNext.onclick = () => slideIndex < SLIDES.length - 1 ? showSlide(slideIndex + 1, 1) : finishWhatsNew()
+            wnBack.onclick = () => { if (slideIndex > 0) showSlide(slideIndex - 1, -1) }
+            document.getElementById('wn-skip').onclick = finishWhatsNew
+            document.addEventListener('keydown', function onKey (e) {
+                if (whatsNew.hidden) return document.removeEventListener('keydown', onKey)
+                if (e.key === 'ArrowRight') wnNext.onclick()
+                else if (e.key === 'ArrowLeft') wnBack.onclick()
+                else if (e.key === 'Escape') finishWhatsNew()
+            })
+            wnNext.focus()
+            fit()
+        }
+
         selectTab(1, false)
         render()
+        if (document.documentElement.dataset.whatsNew) startWhatsNew()
     </script>
 </body>
 </html>

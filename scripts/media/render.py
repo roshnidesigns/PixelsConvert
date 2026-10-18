@@ -9,9 +9,10 @@ import json
 import pathlib
 import re
 import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 M = pathlib.Path(__file__).resolve().parent / 'build'
@@ -37,6 +38,16 @@ def shoot(i):
                    capture_output=True)
     return out
 
+
+# plugin icon: 128x128 (Figma Community size), drawn at 10x and downscaled for crisp edges
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from build_pages import LOGO  # noqa: E402
+
+big = Image.new('RGB', (1280, 1280), LOGO['dark']['bg'])
+draw = ImageDraw.Draw(big)
+for x, y, w, c in LOGO['dark']['squares']:
+    draw.rectangle([x * 12.8, y * 12.8, (x + w) * 12.8 - 1, (y + w) * 12.8 - 1], fill=c)
+big.resize((128, 128), Image.LANCZOS).save(ROOT / 'etc.' / 'plugin-icon.png')
 
 # cover: 960x480 CSS at 2x = 1920x960 (Figma Community cover size)
 subprocess.run([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars',

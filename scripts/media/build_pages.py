@@ -13,9 +13,31 @@ OUT.mkdir(exist_ok=True)
 
 ui = (ROOT / 'ui.html').read_text()
 code = (ROOT / 'code.js').read_text()
-icon = 'data:image/png;base64,' + base64.b64encode((ROOT / 'etc.' / 'plugin-icon.png').read_bytes()).decode()
 
-YELLOW = '#FCF300'
+YELLOW = '#FBF151'  # the logo's yellow
+ROUNDED = "ui-rounded, 'SF Pro Rounded', system-ui"
+
+# the logo: four squares on a 100x100 grid, in a light and a dark version
+# (sources: etc./logo-white.svg, etc./logo-black.svg, redrawn from the user's PNGs)
+LOGO = {
+    'light': {'bg': '#ffffff', 'squares': [(5, 4, 30, '#666666'), (55, 10, 40, '#FBF151'),
+                                           (8, 50, 40, '#000000'), (63, 68, 30, '#b2b2b2')]},
+    # dark is the plugin icon; it has extra padding so Figma's rounded icon corners don't clip it
+    'dark': {'bg': '#111111', 'squares': [(8, 10.5, 30, '#a0a0a0'), (52, 10.5, 40, '#FBF151'),
+                                          (8, 49.5, 40, '#ffffff'), (62, 59.5, 30, '#585858')]}
+}
+
+
+def logo_svg(size, variant='light'):
+    v = LOGO[variant]
+    rects = ''.join(f'<rect x="{x}" y="{y}" width="{w}" height="{w}" fill="{c}"/>' for x, y, w, c in v['squares'])
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="{size}" height="{size}">'
+            f'<rect width="100" height="100" fill="{v["bg"]}"/>{rects}</svg>')
+
+
+# window header icon = the plugin icon, drawn from the vector so it never depends on a stale PNG
+icon = 'data:image/svg+xml;base64,' + base64.b64encode(logo_svg(100, 'dark').encode()).decode()
+
 
 RUNTIME = r"""
 const S = 0.2                      // canvas zoom
@@ -36,9 +58,14 @@ let selHandler = null
 let pluginOnMessage = null
 const pending = []
 
+let uiShown
+const shown = new Promise(r => { uiShown = r })
+
 const figma = {
   mixed: Symbol('mixed'),
-  showUI () {},
+  // the tour is treated as already seen, so the media shows the main UI
+  clientStorage: { getAsync: () => Promise.resolve('2.0'), setAsync: () => Promise.resolve() },
+  showUI () { uiShown() },
   ui: {
     postMessage (m) { uiWin.onmessage({ data: { pluginMessage: m } }) },
     resize (w, h) { iframe.style.height = h + 'px' },
@@ -123,6 +150,8 @@ function startPlugin () {
   uiWin.setTimeout = () => 0      // keep frames deterministic (no copy-flash timeout)
   const run = new Function('figma', '__html__', document.getElementById('plugin-code').textContent)
   run(figma, '')
+  // code.js reads clientStorage before showing the UI; resolves once the first update has been posted
+  return shown
 }
 """
 
@@ -131,7 +160,7 @@ PHONE = """
 <div class="phone" style="left:{fx}px;top:{fy}px">
   <div class="p-title" style="left:{tx}px;top:{ty}px;width:{tw}px;height:{th}px;font-size:{tf}px;line-height:{th}px">Good morning</div>
   <div class="p-card" style="left:{cx}px;top:{cy}px;width:{cw}px;height:{ch}px">
-    <span>dpi</span>
+    {logo}
   </div>
   {rows}
   <div class="p-button" style="left:{bx}px;top:{by}px;width:{bw}px;height:{bh}px;line-height:{bh}px">Get started</div>
@@ -150,7 +179,7 @@ def phone(fx, fy, s=0.2):
         tx=48*s, ty=144*s, tw=984*s, th=96*s, tf=72*s,
         cx=48*s, cy=288*s, cw=984*s, ch=432*s,
         bx=48*s, by=1680*s, bw=984*s, bh=144*s,
-        rows=rows)
+        rows=rows, logo=logo_svg(64, 'dark'))
 
 
 COMMON_CSS = f"""
@@ -170,8 +199,8 @@ body {{ font-family: Inter, system-ui, -apple-system, sans-serif; -webkit-font-s
   box-shadow: 0 0 0 0.5px rgba(0,0,0,.12); }}
 .phone > * {{ position: absolute; }}
 .p-title {{ font-weight: 700; color: #1e1e1e; letter-spacing: -0.2px; }}
-.p-card {{ background: {YELLOW}; border-radius: 6.4px; display: flex; align-items: center; justify-content: center; }}
-.p-card span {{ font: 800 22px ui-rounded, 'SF Pro Rounded', system-ui; color: #000; }}
+.p-card {{ background: #111111; border-radius: 6.4px; display: flex; align-items: center; justify-content: center; }}
+.p-card svg {{ display: block; }}
 .p-row {{ left: 9.6px; right: 9.6px; height: 19.2px; }}
 .p-row i {{ position: absolute; left: 0; top: 0; border-radius: 50%; background: #ececec; }}
 .p-row b {{ position: absolute; left: 26px; top: 3px; height: 5px; border-radius: 3px; background: #e3e3e3; }}
@@ -283,8 +312,8 @@ function play (target) {{
   return {{ frames }}
 }}
 
-window.onload = () => {{
-  startPlugin()
+window.onload = async () => {{
+  await startPlugin()
   const m = location.hash.match(/f=(\\d+)/)
   if (!m) {{
     const {{ frames }} = play(-1)
@@ -309,37 +338,56 @@ window.onload = () => {{
 
 
 # ---------- cover ----------
+# dark background with a faint pixel grid, logo tile, unit pills, and a density chart where the
+# density shown in the plugin window (xxhdpi) is highlighted in the brand yellow
 COVER_W, COVER_H = 960, 480
+DENSITIES = [('ldpi', 120), ('mdpi', 160), ('hdpi', 240), ('xhdpi', 320), ('xxhdpi', 480), ('xxxhdpi', 640)]
+RAMP = ['#4d4d4d', '#6b6b6b', '#8c8c8c', '#b2b2b2', YELLOW, '#f2f2f2']
+chart = ''.join(f'<div class="step{" on" if name == "xxhdpi" else ""}"><i style="width:{8 + dpi / 20}px;height:{8 + dpi / 20}px;'
+                f'background:{c}"></i><b>{name}</b><small>{dpi}</small></div>'
+                for (name, dpi), c in zip(DENSITIES, RAMP))
+units = ''.join(f'<span>{u}</span>' for u in ['px', 'dp', 'sp', 'pt', 'mm', 'inch'])
+DARK_VARS = ("--figma-color-bg:#2c2c2c;--figma-color-bg-secondary:#1e1e1e;--figma-color-bg-hover:#383838;"
+             "--figma-color-text:#fff;--figma-color-text-secondary:#ffffffb3;--figma-color-text-tertiary:#ffffff66;"
+             "--figma-color-border:#444;--figma-color-text-brand:#7cc4f8;--figma-color-bg-brand-tertiary:#394360;"
+             "--figma-color-bg-brand:#0c8ce9")
 cover = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
 {COMMON_CSS}
-.stage {{ width: {COVER_W}px; height: {COVER_H}px; background: {YELLOW}; }}
-.circle {{ position: absolute; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font: 700 15px ui-rounded, 'SF Pro Rounded', system-ui; }}
-.copy {{ position: absolute; left: 56px; top: 118px; width: 360px; }}
-.copy img {{ width: 64px; height: 64px; }}
-.copy h1 {{ margin: 18px 0 10px; font: 800 46px/1 ui-rounded, 'SF Pro Rounded', system-ui; letter-spacing: -1px; color: #000; }}
-.copy p {{ margin: 0; font: 500 17px/1.4 ui-rounded, 'SF Pro Rounded', system-ui; color: #000; }}
-.units {{ display: flex; gap: 8px; margin-top: 22px; }}
-.units span {{ padding: 4px 11px; border: 2px solid #000; border-radius: 999px; font: 700 14px ui-rounded, 'SF Pro Rounded', system-ui; }}
-.window {{ transform-origin: top left; }}
-.window {{ box-shadow: 0 0 0 2px #000, 10px 10px 0 #000; }}
+.stage {{ width: {COVER_W}px; height: {COVER_H}px; background: #141414; }}
+.grid {{ position: absolute; inset: 0; background-image: linear-gradient(#1f1f1f 1px, transparent 1px),
+  linear-gradient(90deg, #1f1f1f 1px, transparent 1px); background-size: 32px 32px; }}
+.copy {{ position: absolute; left: 56px; top: 48px; width: 360px; }}
+.tile {{ display: inline-block; border-radius: 14px; overflow: hidden; line-height: 0; box-shadow: 0 0 0 1px #333; }}
+.copy h1 {{ margin: 18px 0 10px; font: 800 44px/1 {ROUNDED}; letter-spacing: -1px; color: #fff; }}
+.copy p {{ margin: 0; font: 500 16px/1.4 {ROUNDED}; color: #b2b2b2; }}
+.units {{ display: flex; gap: 8px; margin-top: 18px; }}
+.units span {{ padding: 4px 11px; border: 1.5px solid #444; border-radius: 6px; color: #fff; font: 700 14px {ROUNDED}; }}
+.units span:nth-child(3) {{ background: {YELLOW}; border-color: {YELLOW}; color: #000; }}
+.chart {{ position: absolute; left: 56px; bottom: 44px; display: flex; align-items: flex-end; gap: 16px; }}
+.step {{ display: flex; flex-direction: column; align-items: center; gap: 3px; color: #fff; font: 700 11px {ROUNDED}; }}
+.step i {{ display: block; margin-bottom: 5px; border-radius: 2px; }}
+.step small {{ color: #6b6b6b; font-weight: 500; }}
+.step.on b {{ color: {YELLOW}; }}
+.step.on small {{ color: #b2b2b2; }}
+.window {{ transform-origin: top left; background: #2c2c2c; box-shadow: 0 0 0 1px #444, 0 20px 60px rgba(0,0,0,.6); }}
+.window header {{ color: #fff; border-color: #444; }}
 </style></head><body>
 <div class="stage">
-  <div class="circle" style="left:-40px;top:-60px;width:150px;height:150px"></div>
-  <div class="circle" style="left:-50px;top:390px;width:160px;height:160px"></div>
-  <div class="circle" style="left:870px;top:-40px;width:120px;height:120px"></div>
+  <div class="grid"></div>
   <div class="copy">
-    <img src="{icon}">
+    <span class="tile">{logo_svg(64, 'dark')}</span>
     <h1>PixelsConvert</h1>
     <p>Any layer in px, dp, sp, pt, mm and inch, for every screen density.</p>
-    <div class="units"><span>px</span><span>dp</span><span>sp</span><span>pt</span><span>mm</span><span>inch</span></div>
+    <div class="units">{units}</div>
   </div>
+  <div class="chart">{chart}</div>
   {window_html.replace('{style}', 'left:432px;top:56px;transform:scale(0.86)')}
 </div>
 {code_block}
 <script>{RUNTIME}
-window.onload = () => {{
-  startPlugin()
+window.onload = async () => {{
+  document.getElementById('ui').contentDocument.documentElement.style.cssText = '{DARK_VARS}'
+  await startPlugin()
   select('title')
   uiDoc.querySelectorAll('.tab')[4].click()
 }}

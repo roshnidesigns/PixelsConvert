@@ -1,5 +1,8 @@
 const WIDTH = 560
-figma.showUI(__html__, { width: WIDTH, height: 320, themeColors: true })
+
+// bump this when a new "What's new" tour should be shown; each user sees it once per version
+const WHATS_NEW_VERSION = '2.0'
+const WHATS_NEW_KEY = 'whatsNewSeen'
 
 const BASELINE_DPI = 160
 const MM_PER_INCH = 25.4
@@ -8,8 +11,26 @@ const FONT_SCALE = 1
 
 // density chosen in the UI; kept so selection changes don't reset it
 let currentDpi = BASELINE_DPI
+let uiOpen = false
 
-figma.ui.onmessage = msg => {
+async function start () {
+  let seen = WHATS_NEW_VERSION
+  try {
+    seen = await figma.clientStorage.getAsync(WHATS_NEW_KEY)
+  } catch (e) {
+    // storage unavailable: skip the tour rather than show it every time
+  }
+  // flag the page before it loads, so the tour shows without a flash of the main UI
+  const html = seen === WHATS_NEW_VERSION
+    ? __html__
+    : __html__.replace('<html lang="en">', '<html lang="en" data-whats-new="' + WHATS_NEW_VERSION + '">')
+  figma.showUI(html, { width: WIDTH, height: 320, themeColors: true })
+  uiOpen = true
+  figma.ui.onmessage = handleMessage
+  update()
+}
+
+function handleMessage (msg) {
   if (msg.type === 'setdpi') {
     currentDpi = msg.val
     update()
@@ -19,6 +40,8 @@ figma.ui.onmessage = msg => {
     figma.openExternal(msg.url)
   } else if (msg.type === 'resize') {
     figma.ui.resize(WIDTH, Math.max(160, Math.min(600, msg.height)))
+  } else if (msg.type === 'whats-new-done') {
+    figma.clientStorage.setAsync(WHATS_NEW_KEY, WHATS_NEW_VERSION)
   }
 }
 
@@ -81,6 +104,7 @@ function getBounds (selection: readonly SceneNode[]) {
 }
 
 function update () {
+  if (!uiOpen) return
   const selection = figma.currentPage.selection
   if (selection.length === 0) {
     figma.ui.postMessage({ type: 'empty', str: 'Select a layer to see its values' })
@@ -114,4 +138,4 @@ function update () {
   figma.ui.postMessage({ type: 'values', str, dpi, values })
 }
 
-update()
+start()

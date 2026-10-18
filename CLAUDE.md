@@ -21,6 +21,10 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
   tab-separated text (pastes into spreadsheets as columns).
 - **Multiple layers:** shows the combined bounding box ("N layers selected (combined bounds)").
 - **Mixed text:** a text layer with several font sizes shows "mixed".
+- **What's new tour:** on first launch of a new version, a 6-step tour (fresh look, density tabs,
+  sp, click to copy, multiple layers, accuracy) with Back/Next, dots, Skip, arrow keys/Esc, then
+  "Start converting" fades into the main UI. Shown once per `WHATS_NEW_VERSION` (currently `'2.0'`),
+  to new and existing users alike.
 - **Footer links:** "♥ Show some love" and "Get Pro / Plus →". **Currently hidden**: `PRO_URL` /
   `LOVE_URL` at the top of the `<script>` in `ui.html` are empty strings. Each link appears once its
   URL is filled in, and the whole footer is hidden while both are empty.
@@ -45,7 +49,7 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 | `code.ts` | Plugin logic (runs in Figma's sandbox). Source of truth. |
 | `code.js` | Compiled `code.ts` — this is what Figma runs. Must be kept in sync (see Build). |
 | `ui.html` | The whole UI: HTML + CSS + JS in one file, shown in the plugin window. |
-| `etc./` | Cover image, demo GIF, icons used by the README / Community page. |
+| `etc./` | Cover image, demo GIF, icons used by the README / Community page. `logo-white.png` / `logo-black.png` are the user's 100×100 logos (light / dark); `logo-white.svg` / `logo-black.svg` are the vector redraws; `plugin-icon.png` is the 128×128 Community icon (dark version). |
 | `scripts/media/` | Scripts that regenerate `etc./cover.png` and `etc./demo.gif` from the real UI (output scratch in ignored `build/`). |
 
 ## Architecture
@@ -61,6 +65,12 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 - Messages handled from UI: `setdpi`, `notify` (→ `figma.notify`), `open` (→ `figma.openExternal`),
   `resize` (UI reports its content height; window is 560px wide, height clamped 160–600).
 - `showUI` uses `themeColors: true` so the UI gets Figma's `--figma-color-*` CSS variables.
+- Startup is async: `start()` reads `figma.clientStorage` key `whatsNewSeen`. If it isn't
+  `WHATS_NEW_VERSION`, it adds `data-whats-new="<version>"` to the `<html>` tag of `__html__`
+  **before** `showUI`, so the tour appears with no flash of the main UI. The UI sends
+  `whats-new-done` when the tour ends and the plugin saves the version. If storage fails, the
+  tour is skipped. `update()` does nothing until the UI is open.
+- **To show a tour for a future update:** bump `WHATS_NEW_VERSION` and rewrite `SLIDES` in `ui.html`.
 
 **Formulas** (px are treated as physical pixels at the chosen dpi):
 - dp = px × 160 / dpi · sp = dp ÷ font scale (fixed at 1.0, so sp = dp)
@@ -71,6 +81,8 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 - Table is built from `ROWS` × `UNITS` arrays; density tabs from `DENSITIES`.
 - Colors are CSS variables mapped to Figma's theme vars with light fallbacks (for browser previews).
 - Values rounded to 2 decimals for display and copying.
+- The main UI is wrapped in `<main id="app">`; the tour is `<section id="whats-new">`. `SLIDES`
+  holds each step's title, text and an HTML/CSS mini illustration (no image files).
 - Clipboard uses a hidden textarea + `document.execCommand('copy')` because `navigator.clipboard`
   is blocked in plugin iframes.
 - Needs `<!DOCTYPE html>` — without it the page runs in quirks mode and tables ignore the
@@ -92,7 +104,8 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 
 `scripts/media/build_pages.py` writes `build/cover.html` and `build/demo.html`, which embed the
 real `ui.html` (as a same-origin `srcdoc` iframe) and run the real `code.js` against a mock
-`figma` object. So the images always show true values. The demo is a scripted storyboard
+`figma` object (with `clientStorage` reporting the tour as seen, so the media shows the main
+UI). So the images always show true values. The demo is a scripted storyboard
 (`STEPS`: select card → xxhdpi → text layer → copy a cell → custom dpi 401 → shift-select →
 Copy all) with a fake cursor, captions and Figma-style toasts, on a mock canvas with an
 "Android · Home" phone frame (1080×1920 at 0.2 zoom).
@@ -104,8 +117,29 @@ python3 scripts/media/build_pages.py
 <venv>/bin/python scripts/media/render.py   # needs Google Chrome + Pillow (pip install pillow in a venv)
 ```
 
-Brand style for media: yellow `#FCF300`, black outline circles/pills, rounded heavy type
-(`ui-rounded`), matching the original cover and the plugin icon.
+`render.py` also regenerates `etc./plugin-icon.png` from `LOGO['dark']` in `build_pages.py`.
+
+**Brand style (since 2026-10-18):**
+- **Logo:** four squares on a 100×100 grid, one of them yellow `#FBF151`. Two versions with
+  slightly different layouts (exact squares in `LOGO` in `scripts/media/build_pages.py`):
+  light (on white: grey, yellow, black, light grey) and dark (on `#111111`: light grey, yellow,
+  white, dark grey). **The dark logo is the plugin icon** (chosen because it reads well in both of
+  Figma's themes; the light one became a glaring white tile in dark theme). The user redrew the
+  dark logo with more padding (8 px sides, 10.5 px top/bottom) so Figma's rounded icon corners
+  don't clip the squares. Dark is also used on the cover and in the plugin window header in the
+  media; light is for light backgrounds.
+- **Yellow:** `#FBF151` (the logo's yellow) everywhere. The old `#FCF300` is retired.
+- **Cover:** near-black `#141414` with a faint 32px pixel grid, the logo on a white rounded tile,
+  white rounded heavy title (`ui-rounded`), unit pills with **sp in yellow**, a density
+  chart (squares growing ldpi → xxxhdpi in a grey ramp, xxhdpi in yellow, matching the tab shown),
+  and the plugin window in Figma's dark theme.
+- **Demo GIF:** light Figma canvas; yellow captions with black outlines; the phone's hero card is
+  dark (`#111`) with the dark logo.
+- The old style (yellow background, black outline circles, the "dpi" sun icon) is retired. The
+  user picked the dark cover (concept C) combined with D's density chart, out of 4 concepts.
+- The user's Figma file with the logo (`QPO5NiVWArI5VFovoah68G`, node `2241:10`) isn't shared with
+  the connected Figma account, so the logos were redrawn from the PNGs (they match to within a few
+  levels of edge smoothing).
 
 ## Decisions made
 
@@ -129,6 +163,9 @@ Brand style for media: yellow `#FCF300`, black outline circles/pills, rounded he
 
 ## Changelog
 
+- **2026-10-18** — New square logo with yellow (light + dark versions, vectors, 128px icon);
+  dark cover with density chart and yellow accent; GIF updated with the new logo.
+- **2026-10-18** — What's new tour for v2.0 (once per version, via `figma.clientStorage`).
 - **2026-10-18** — Hid footer links (empty URLs) for the Community release; rebuilt cover + GIF.
 - **2026-10-18** — New README cover + demo GIF of the redesigned UI, generated by
   `scripts/media/`; README feature list and relative image links.
