@@ -1,4 +1,4 @@
-"""Generates cover.html and demo.html, which run the real ui.html + code.js against a mock figma API.
+"""Generates thumbnail.html and demo.html, which run the real ui.html + code.js against a mock figma API.
 
 Step 1 of rebuilding the README media (see render.py for step 2). Output goes to scripts/media/build/.
 """
@@ -340,7 +340,6 @@ window.onload = async () => {{
 # ---------- cover ----------
 # dark background with a faint pixel grid, logo tile, unit pills, and a density chart where the
 # density shown in the plugin window (xxhdpi) is highlighted in the brand yellow
-COVER_W, COVER_H = 960, 480
 DENSITIES = [('ldpi', 120), ('mdpi', 160), ('hdpi', 240), ('xhdpi', 320), ('xxhdpi', 480), ('xxxhdpi', 640)]
 RAMP = ['#4d4d4d', '#6b6b6b', '#8c8c8c', '#b2b2b2', YELLOW, '#f2f2f2']
 chart = ''.join(f'<div class="step{" on" if name == "xxhdpi" else ""}"><i style="width:{8 + dpi / 20}px;height:{8 + dpi / 20}px;'
@@ -351,19 +350,22 @@ DARK_VARS = ("--figma-color-bg:#2c2c2c;--figma-color-bg-secondary:#1e1e1e;--figm
              "--figma-color-text:#fff;--figma-color-text-secondary:#ffffffb3;--figma-color-text-tertiary:#ffffff66;"
              "--figma-color-border:#444;--figma-color-text-brand:#7cc4f8;--figma-color-bg-brand-tertiary:#394360;"
              "--figma-color-bg-brand:#0c8ce9")
-cover = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+
+
+def cover_html(COVER_W, COVER_H, copy_top, chart_bottom, window_top):
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
 {COMMON_CSS}
 .stage {{ width: {COVER_W}px; height: {COVER_H}px; background: #141414; }}
 .grid {{ position: absolute; inset: 0; background-image: linear-gradient(#1f1f1f 1px, transparent 1px),
   linear-gradient(90deg, #1f1f1f 1px, transparent 1px); background-size: 32px 32px; }}
-.copy {{ position: absolute; left: 56px; top: 48px; width: 360px; }}
+.copy {{ position: absolute; left: 56px; top: {copy_top}px; width: 360px; }}
 .tile {{ display: inline-block; border-radius: 14px; overflow: hidden; line-height: 0; box-shadow: 0 0 0 1px #333; }}
 .copy h1 {{ margin: 18px 0 10px; font: 800 44px/1 {ROUNDED}; letter-spacing: -1px; color: #fff; }}
 .copy p {{ margin: 0; font: 500 16px/1.4 {ROUNDED}; color: #b2b2b2; }}
 .units {{ display: flex; gap: 8px; margin-top: 18px; }}
 .units span {{ padding: 4px 11px; border: 1.5px solid #444; border-radius: 6px; color: #fff; font: 700 14px {ROUNDED}; }}
 .units span:nth-child(3) {{ background: {YELLOW}; border-color: {YELLOW}; color: #000; }}
-.chart {{ position: absolute; left: 56px; bottom: 44px; display: flex; align-items: flex-end; gap: 16px; }}
+.chart {{ position: absolute; left: 56px; bottom: {chart_bottom}px; display: flex; align-items: flex-end; gap: 16px; }}
 .step {{ display: flex; flex-direction: column; align-items: center; gap: 3px; color: #fff; font: 700 11px {ROUNDED}; }}
 .step i {{ display: block; margin-bottom: 5px; border-radius: 2px; }}
 .step small {{ color: #6b6b6b; font-weight: 500; }}
@@ -381,7 +383,7 @@ cover = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
     <div class="units">{units}</div>
   </div>
   <div class="chart">{chart}</div>
-  {window_html.replace('{style}', 'left:432px;top:56px;transform:scale(0.86)')}
+  {window_html.replace('{style}', 'left:432px;top:' + str(window_top) + 'px;transform:scale(0.86)')}
 </div>
 {code_block}
 <script>{RUNTIME}
@@ -392,5 +394,8 @@ window.onload = async () => {{
   uiDoc.querySelectorAll('.tab')[4].click()
 }}
 </script></body></html>"""
-(OUT / 'cover.html').write_text(cover)
+
+
+# Community thumbnail (960x540 -> 1920x1080), also used as the README cover
+(OUT / 'thumbnail.html').write_text(cover_html(960, 540, copy_top=72, chart_bottom=68, window_top=82))
 print('ok')

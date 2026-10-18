@@ -1,5 +1,5 @@
 """Renders build/demo.html frame by frame with headless Chrome and stitches etc./demo.gif with Pillow.
-Also renders build/cover.html to etc./cover.png.
+Also renders etc./thumbnail.png (Community thumbnail and README cover) and the carousel slides in etc./carousel/.
 
 Usage (needs Google Chrome and Pillow, e.g. in a venv: python3 -m venv venv && venv/bin/pip install pillow):
     python3 scripts/media/build_pages.py
@@ -49,11 +49,17 @@ for x, y, w, c in LOGO['dark']['squares']:
     draw.rectangle([x * 12.8, y * 12.8, (x + w) * 12.8 - 1, (y + w) * 12.8 - 1], fill=c)
 big.resize((128, 128), Image.LANCZOS).save(ROOT / 'etc.' / 'plugin-icon.png')
 
-# cover: 960x480 CSS at 2x = 1920x960 (Figma Community cover size)
-subprocess.run([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars',
-                f'--user-data-dir={PROFILES / "cover"}', '--force-device-scale-factor=2',
-                '--window-size=960,480', f'--screenshot={ROOT / "etc." / "cover.png"}',
-                'file://' + str(M / 'cover.html')], capture_output=True)
+# Figma Community thumbnail (also the README cover) and carousel slides: 960x540 CSS at 2x = 1920x1080
+import carousel  # noqa: E402,F401  (writes build/carousel-N.html)
+
+CAROUSEL = ROOT / 'etc.' / 'carousel'
+CAROUSEL.mkdir(exist_ok=True)
+shots = [(M / 'thumbnail.html', ROOT / 'etc.' / 'thumbnail.png')]
+shots += [(page, CAROUSEL / (page.stem.replace('carousel-', '') + '.png')) for page in sorted(M.glob('carousel-*.html'))]
+for page, out in shots:
+    subprocess.run([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars',
+                    f'--user-data-dir={PROFILES / "cover"}', '--force-device-scale-factor=2',
+                    '--window-size=960,540', f'--screenshot={out}', 'file://' + str(page)], capture_output=True)
 
 # one profile per worker slot so parallel Chrome instances don't collide
 with ThreadPoolExecutor(6) as pool:

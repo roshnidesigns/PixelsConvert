@@ -35,10 +35,12 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 - **Not yet published** as a new Community version: the live plugin is still the old 2020 version.
   Publish via Figma desktop → Plugins → Development → pixels.Convert → Publish new version.
 - **Publishing** (being done by the user, 2026-10-18): the footer links were hidden first because
-  the user has no real URLs yet. Upload `etc./cover.png` (1920×960) as the Community cover too.
+  the user has no real URLs yet. Upload `etc./plugin-icon.png` (icon), `etc./thumbnail.png`
+  (1920×1080 thumbnail) and `etc./carousel/2.png`–`7.png` (carousel, after the thumbnail).
+  Tagline chosen from options: "Pixels to dp, sp, pt, mm and inch. For every screen density." (100-char limit).
 - **When real URLs arrive:** set `PRO_URL` / `LOVE_URL`, then rebuild the README media (the footer
   will show again) and publish another version.
-- README cover and demo GIF are up to date with the new UI. **Rebuild them after any visible UI
+- README image (thumbnail), carousel and demo GIF are up to date with the new UI. **Rebuild them after any visible UI
   change** (see "README media" below).
 
 ## Files
@@ -50,7 +52,7 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 | `code.js` | Compiled `code.ts` — this is what Figma runs. Must be kept in sync (see Build). |
 | `ui.html` | The whole UI: HTML + CSS + JS in one file, shown in the plugin window. |
 | `etc./` | Cover image, demo GIF, icons used by the README / Community page. `logo-white.png` / `logo-black.png` are the user's 100×100 logos (light / dark); `logo-white.svg` / `logo-black.svg` are the vector redraws; `plugin-icon.png` is the 128×128 Community icon (dark version). |
-| `scripts/media/` | Scripts that regenerate `etc./cover.png` and `etc./demo.gif` from the real UI (output scratch in ignored `build/`). |
+| `scripts/media/` | Scripts that regenerate `etc./thumbnail.png`, `etc./carousel/*.png`, `etc./demo.gif` and `etc./plugin-icon.png` from the real UI (output scratch in ignored `build/`). |
 
 ## Architecture
 
@@ -102,7 +104,7 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 
 ### README media
 
-`scripts/media/build_pages.py` writes `build/cover.html` and `build/demo.html`, which embed the
+`scripts/media/build_pages.py` writes `build/thumbnail.html` and `build/demo.html`, which embed the
 real `ui.html` (as a same-origin `srcdoc` iframe) and run the real `code.js` against a mock
 `figma` object (with `clientStorage` reporting the tour as seen, so the media shows the main
 UI). So the images always show true values. The demo is a scripted storyboard
@@ -110,7 +112,7 @@ UI). So the images always show true values. The demo is a scripted storyboard
 Copy all) with a fake cursor, captions and Figma-style toasts, on a mock canvas with an
 "Android · Home" phone frame (1080×1920 at 0.2 zoom).
 `scripts/media/render.py` screenshots each frame with headless Chrome (6 in parallel) and stitches
-the GIF with Pillow (shared 128-color palette, ~400 KB, 1560×930), plus renders the cover at 2×.
+the GIF with Pillow (shared 128-color palette, ~400 KB, 1560×930), plus renders the thumbnail and carousel at 2×.
 
 ```
 python3 scripts/media/build_pages.py
@@ -118,6 +120,11 @@ python3 scripts/media/build_pages.py
 ```
 
 `render.py` also regenerates `etc./plugin-icon.png` from `LOGO['dark']` in `build_pages.py`.
+`scripts/media/carousel.py` (imported by `render.py`) builds the Community carousel slides 2–7,
+1920×1080 each, dark style: (2) density tabs + custom dpi 401, (3) sp column highlighted,
+(4) click to copy with cursor + "Copied 24sp" toast, (5) multi-select with a phone frame,
+(6) light + dark windows overlapping, (7) the What's new tour. Slide 1 is `etc./thumbnail.png`.
+There is no separate README cover anymore: the README uses `thumbnail.png` (user's choice).
 
 **Brand style (since 2026-10-18):**
 - **Logo:** four squares on a 100×100 grid, one of them yellow `#FBF151`. Two versions with
@@ -129,7 +136,7 @@ python3 scripts/media/build_pages.py
   don't clip the squares. Dark is also used on the cover and in the plugin window header in the
   media; light is for light backgrounds.
 - **Yellow:** `#FBF151` (the logo's yellow) everywhere. The old `#FCF300` is retired.
-- **Cover:** near-black `#141414` with a faint 32px pixel grid, the logo on a white rounded tile,
+- **Thumbnail / README cover (1920×1080):** near-black `#141414` with a faint 32px pixel grid, the dark logo on a rounded tile,
   white rounded heavy title (`ui-rounded`), unit pills with **sp in yellow**, a density
   chart (squares growing ldpi → xxxhdpi in a grey ramp, xxhdpi in yellow, matching the tab shown),
   and the plugin window in Figma's dark theme.
@@ -151,6 +158,9 @@ python3 scripts/media/build_pages.py
   button (values update live).
 - Long property labels wrap to two lines rather than truncating.
 - Commits go straight to `master` (user's own repo) after the user confirms it works in Figma.
+- **Figma data security answers** (publish dialog): no backend; no network requests; no user
+  authentication; does not store data read/derived from the plugin API (clientStorage only holds the
+  constant tour version); solo developer. Re-check these if networking, storage or auth is ever added.
 - **The repo is public**, and that's fine. The user knows this `CLAUDE.md` (paths, plans,
   decisions) is visible and chose to keep it in the repo.
 
@@ -163,6 +173,8 @@ python3 scripts/media/build_pages.py
 
 ## Changelog
 
+- **2026-10-18** — 1920×1080 Community thumbnail (also the README image; `cover.png` removed) and
+  six carousel slides.
 - **2026-10-18** — New square logo with yellow (light + dark versions, vectors, 128px icon);
   dark cover with density chart and yellow accent; GIF updated with the new logo.
 - **2026-10-18** — What's new tour for v2.0 (once per version, via `figma.clientStorage`).

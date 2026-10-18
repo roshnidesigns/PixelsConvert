@@ -5,7 +5,7 @@
 ## [Install Plugin on figma](https://www.figma.com/community/plugin/870191885836440905/PixelsConvert)
 
 
-![CoverImg](etc./cover.png)
+![PixelsConvert](etc./thumbnail.png)
 A figma plugin to get any layer's position, size, font size and paragraph spacing in px, dp, sp, pt, mm and inch for different screen densities!
 
 - Pick a density: ldpi, mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi, or enter a custom dpi
