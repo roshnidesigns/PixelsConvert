@@ -115,6 +115,8 @@ Brand style for media: yellow `#FCF300`, black outline circles/pills, rounded he
   button (values update live).
 - Long property labels wrap to two lines rather than truncating.
 - Commits go straight to `master` (user's own repo) after the user confirms it works in Figma.
+- **The repo is public**, and that's fine. The user knows this `CLAUDE.md` (paths, plans,
+  decisions) is visible and chose to keep it in the repo.
 
 ## Known limitations / ideas
 
