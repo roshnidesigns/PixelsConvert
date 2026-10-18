@@ -32,10 +32,12 @@ layer) converted into **px, dp, sp, pt, mm and inch** for a chosen screen densit
 ## Current status
 
 - All features above work and were tested by the user inside Figma (light and dark mode).
-- **Not yet published** as a new Community version: the live plugin is still the old 2020 version.
-  Publish via Figma desktop → Plugins → Development → pixels.Convert → Publish new version.
-- **Publishing** (being done by the user, 2026-10-18): the footer links were hidden first because
-  the user has no real URLs yet. Upload `etc./plugin-icon.png` (icon), `etc./thumbnail.png`
+- **Published as v2.0 on the Figma Community on 2026-10-18** (commit `3dfb9bf`), replacing the old
+  2020 version. Future updates: Figma desktop → Plugins → Development → Manage plugins in
+  development → pixels.Convert → Publish (new version). Figma uploads files from this folder, not
+  from GitHub. Bump `WHATS_NEW_VERSION` (and rewrite `SLIDES`) if the update deserves a new tour.
+- **What was uploaded for v2.0:** the footer links were hidden first because
+  the user has no real URLs yet. Uploaded `etc./plugin-icon.png` (icon), `etc./thumbnail.png`
   (1920×1080 thumbnail) and `etc./carousel/2.png`–`7.png` (carousel, after the thumbnail).
   Tagline chosen from options: "Pixels to dp, sp, pt, mm and inch. For every screen density." (100-char limit).
 - **When real URLs arrive:** set `PRO_URL` / `LOVE_URL`, then rebuild the README media (the footer
@@ -173,6 +175,7 @@ There is no separate README cover anymore: the README uses `thumbnail.png` (user
 
 ## Changelog
 
+- **2026-10-18** — **Published v2.0 to the Figma Community.**
 - **2026-10-18** — 1920×1080 Community thumbnail (also the README image; `cover.png` removed) and
   six carousel slides.
 - **2026-10-18** — New square logo with yellow (light + dark versions, vectors, 128px icon);
